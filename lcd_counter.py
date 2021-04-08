@@ -113,7 +113,7 @@ def create_csv(file):
         writer = csv.writer(fa, delimiter=",")
         line = fr.readline()
         if not line:  # if CSV is empty, add header
-            header = ("Type", "pi", "Machine", "Part", "Card_ID",
+            header = ("Type", "pi", "Machine", "Part",
                       "User_ID", "Time", "Date")
             writer.writerow(header)
 
@@ -123,7 +123,7 @@ def add_timestamp(cat, file):
     filename. Adds timestamp to that csv including machine
     number, part number, id number, user, time, date"""
     now = time.strftime("%H:%M:%S")
-    data = (cat, pi, mach_num, part_num, empname, now, today)
+    data = (cat, pi, mach_num, part_num, emp, now, today)
     with open(file, "a", newline="") as fa:
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
@@ -176,8 +176,8 @@ try:
                     invalid_params()
             startup = False
         elif mode == "standby":
-            empname = None
-            empnum = None
+            #empname = None
+            emp = None
             idn = None
             lcd.clear()
             standby_info_top = f"{part_num} {mach_num}"
@@ -189,10 +189,10 @@ try:
                     today = date.today()
                     file_path = create_file_path(day=today)
                     create_csv(file=file_path)
-                idn, empnum = reader.read_no_block()
-                if empnum != None:
-                    empnum = empnum.strip()
-                    empname = "x0"
+                idn, emp = reader.read_no_block()
+                if emp != None:
+                    emp = emp.strip()
+                    #empname = "x0"
                     empcount = 0
                     add_timestamp(logon, file_path)
                     mode = modes[3]
@@ -237,7 +237,7 @@ try:
         elif mode == "run":
             sig_out.on()
             run_msg_top1 = f"{part_num}  {mach_num}"
-            run_msg_top2 = f"{empnum} {empname}"
+            run_msg_top2 = f"{emp}"
             last_display = 0
             last_disp_time = datetime.now()
             lcd.clear()
