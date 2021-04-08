@@ -5,7 +5,7 @@ import csv
 from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
-import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
+#import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from gpiozero import Button, InputDevice, OutputDevice
 
 with open("/etc/hostname", "r") as hn:
