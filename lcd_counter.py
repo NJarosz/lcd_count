@@ -12,8 +12,8 @@ with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
 
 shot_sig = Button(4)
-button1 = Button(12)
-button2 = Button(26)
+button1 = Button(26)
+button2 = Button(12)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
@@ -146,7 +146,6 @@ def display_run_info(last_display, last_disp_time):
 
 try:    
     while True:
-        print(mode)
         if mode == "setup":
             lcd.clear()
             lcd.message("Setup")
