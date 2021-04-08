@@ -1,5 +1,5 @@
-import board
-import busio
+#import board
+#import busio
 import time
 import csv
 from datetime import datetime, date, timedelta
@@ -13,7 +13,7 @@ with open("/etc/hostname", "r") as hn:
 
 shot_sig = Button(4)
 button1 = Button(12)
-button2 = Button(27)
+button2 = Button(26)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
