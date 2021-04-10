@@ -203,7 +203,7 @@ try:
             empnum = None
             idn = None
             lcd.clear()
-            standby_info_top = f"Part: {part_num}"
+            standby_info_top = f"Part:{part_num}"
             standby_info_btm = f"Cnt:{total_count} Mch:{mach_num}"
             lcd.message(standby_info_top, 1)
             lcd.message(standby_info_btm, 2)
