@@ -174,6 +174,7 @@ try:
             lcd.message("Setup")
             while mode == modes[0]:
                 part_num, mach_num = read_machvars_db()
+                print(part_num, mach_num)
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
