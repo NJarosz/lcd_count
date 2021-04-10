@@ -12,7 +12,7 @@ import mysql.connector
 with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
     
-count_num = int(filter(str.isdigit, pi))
+count_num = int(''.join(i for i in pi if i.isdigit()))
 
 shot_sig = Button(4)
 button1 = Button(12)
