@@ -7,9 +7,12 @@ from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
 import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from gpiozero import Button, InputDevice, OutputDevice
+import mysql.connector
 
 with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
+    
+count_num = int(filter(str.isdigit, pi))
 
 shot_sig = Button(4)
 button1 = Button(12)
@@ -42,6 +45,24 @@ menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
 
+
+def read_machvars_db():
+    conn = mysql.connector.connection(
+                                        host="10.0.0.167",
+                                        user="root",
+                                        passwd="gibson.88"
+                                        database="tjtest")
+    c = conn.cursor()
+    c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num))
+    mach = c.fetchone()
+    c.commit()
+    c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num))
+    part = c.fetchone()
+    c.commit()
+    c.close()
+    return part, mach
+    
+        
 
 def set_part_mach():
     """Sets part number, machine number, and timeout duration"""
@@ -151,7 +172,7 @@ try:
             lcd.clear()
             lcd.message("Setup")
             while mode == modes[0]:
-                part_num, mach_num = set_part_mach()
+                part_num, mach_num = read_machvars_db()
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
