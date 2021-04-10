@@ -16,7 +16,7 @@ count_num = int(''.join(i for i in pi if i.isdigit()))
 
 shot_sig = Button(4)
 button1 = Button(12)
-button2 = Button(27)
+button2 = Button(26)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
