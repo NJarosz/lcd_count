@@ -56,10 +56,10 @@ def read_machvars_db():
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
     mach = c.fetchone()
-    mach = mach[0]
+    mach = str(mach[0])
     c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
     part = c.fetchone()
-    part = part[0]
+    part = str(part[0])
     c.close()
     return part, mach
     
