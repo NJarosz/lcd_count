@@ -48,10 +48,11 @@ logoutm = "Logged Out"
 
 def read_machvars_db():
     conn = mysql.connector.connection(
-                                        host="10.0.0.167",
-                                        user="root",
-                                        passwd="gibson.88"
-                                        database="tjtest")
+                                host="10.0.0.167",
+                                user="root",
+                                passwd="gibson.88",
+                                database="tjtest"
+                            )
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num))
     mach = c.fetchone()
