@@ -23,8 +23,9 @@ lcd = I2C_LCD_driver.lcd()
 lcd.color = [0,100,0]
 csv_path = "/home/pi/Documents/CSV/"
 file_path = ""
-logon = "L.ON"
-logout = "L.OUT"
+logon = "L_ON"
+logout = "L_OUT"
+timeout = "T_OUT"
 mas = "MAS"
 mae = "MAE"
 shot = "SHOT"
@@ -258,6 +259,7 @@ try:
                         menu = 1
                         lcd.clear()
         elif mode == "run":
+            now = datetime.now()
             sig_out.on()
             run_msg_top1 = f"{part_num}  {mach_num}"
             run_msg_top2 = f"{empnum} {empname}"
@@ -274,7 +276,16 @@ try:
                     total_count +=1
                     write_count(count=total_count)
                     add_timestamp(shot, file_path)
+                    now = datetime.now()
                     time.sleep(0.1)
+                elif datetime.now() >= now + timedelta(seconds=300):
+                    add_timestamp(timeout, file_path)
+                    sig_out.off()
+                    lcd.clear()
+                    lcd.message(logoutm)
+                    time.sleep(1)
+                    mode = modes[1]
+                    break                   
                 if button1.is_pressed:
                     button1.wait_for_release()
                     add_timestamp(logout, file_path)
