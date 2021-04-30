@@ -15,8 +15,8 @@ with open("/etc/hostname", "r") as hn:
 count_num = int(''.join(i for i in pi if i.isdigit()))
 
 shot_sig = Button(4)
-button1 = Button(12)
-button2 = Button(26)
+button1 = Button(26)
+button2 = Button(12)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
