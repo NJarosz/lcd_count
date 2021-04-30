@@ -1,7 +1,6 @@
 import board
 import busio
 import time
-import csv
 from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
@@ -136,33 +135,21 @@ def invalid_params():
     lcd.clear()
 
 
-def create_file_path(day, path=csv_path):
-    filename = day.strftime("%Y%m%d") + f"{pi}.csv"
-    file_path = path + filename
-    return file_path
-
-
-def create_csv(file):
-    """creates a new csv file, inserts a header"""
-    with open(file, "a", newline="") as fa, \
-            open(file, "r", newline='') as fr:
-        writer = csv.writer(fa, delimiter=",")
-        line = fr.readline()
-        if not line:  # if CSV is empty, add header
-            header = ("Type", "pi", "Machine", "Part", "Card_ID",
-                      "User_ID", "Time", "Date")
-            writer.writerow(header)
-
-
-def add_timestamp(cat, file):
+def add_timestamp(cat):
     """opens or creates a csv file with todays date in
     filename. Adds timestamp to that csv including machine
     number, part number, id number, user, time, date"""
-    now = time.strftime("%H:%M:%S")
-    data = (cat, pi, mach_num, part_num, empname, now, today)
-    with open(file, "a", newline="") as fa:
-        writer = csv.writer(fa, delimiter=",")
-        writer.writerow(data)
+    conn = mysql.connector.connect(
+                                host="10.0.0.167",
+                                user="root",
+                                passwd="gibson.88",
+                                database="tjtest"
+                            )
+    c = conn.cursor()
+    c.execute("INSERT INTO prod_data (Type, pi, Machine, Part, Employee) VALUES (%s,%s,%s,%s,%s)", 
+              (cat, pi, mach_num, part_num, empnum))
+    conn.commit()
+    c.close()
         
         
 def display_run_info(last_display, last_disp_time):
