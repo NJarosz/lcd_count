@@ -23,9 +23,9 @@ lcd = I2C_LCD_driver.lcd()
 lcd.color = [0,100,0]
 csv_path = "/home/pi/Documents/CSV/"
 file_path = ""
-logon = "L_ON"
-logout = "L_OUT"
-timeout = "T_OUT"
+logon = "LOG_ON"
+logout = "LOG_OFF"
+timeout = "TIME_OUT"
 mas = "MAS"
 mae = "MAE"
 shot = "SHOT"
@@ -64,7 +64,20 @@ def read_machvars_db():
     c.close()
     return part, mach
     
-        
+def ret_emp_name(id_num):
+    conn = mysql.connector.connect(
+                                host="10.0.0.167",
+                                user="root",
+                                passwd="gibson.88",
+                                database="tjtest"
+                            )
+    c = conn.cursor()
+    c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
+    emp_name=c.fetchone()
+    emp_name=str(emp_name[0])
+    c.close()
+    return emp_name
+              
 
 def set_part_mach():
     """Sets part number, machine number, and timeout duration"""
@@ -216,7 +229,7 @@ try:
                 idn, empnum = reader.read_no_block()
                 if empnum != None:
                     empnum = empnum.strip()
-                    empname = "x0"
+                    empname = ret_emp_name(empnum)
                     empcount = 0
                     add_timestamp(logon, file_path)
                     mode = modes[3]
