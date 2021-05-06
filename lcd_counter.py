@@ -17,7 +17,6 @@ button2 = Button(12)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
-lcd.color = [0,100,0]
 csv_path = "/home/pi/Documents/CSV/"
 file_path = ""
 logon = "LOG_ON"
@@ -127,7 +126,12 @@ def add_timestamp(cat, file):
     with open(file, "a", newline="") as fa:
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
-        
+   
+def update_csv():
+    today = date.today()
+    file_path = create_file_path(day=today)
+    create_csv(file=file_path)
+    return today, file_path
         
 def display_run_info(last_display, last_disp_time):
     lcd.message(run_msg_btm, 2)
@@ -154,11 +158,8 @@ try:
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
-                    
                     if startup is True:
-                        today = date.today()
-                        file_path = create_file_path(day=today)
-                        create_csv(file=file_path)
+                        today, file_path = update_csv()
                         mode = modes[1]
                     else:
                         #lcd.messsage = setup1_msg
@@ -185,9 +186,7 @@ try:
             lcd.message(standby_info_btm, 2)
             while True:
                 if date.today() != today:
-                    today = date.today()
-                    file_path = create_file_path(day=today)
-                    create_csv(file=file_path)
+                    today, file_path = update_csv()
                 idn, emp = reader.read_no_block()
                 if emp != None:
                     emp = emp.strip()
