@@ -1,10 +1,7 @@
-import board
-import busio
 import time
 from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
-import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from gpiozero import Button, InputDevice, OutputDevice
 import mysql.connector
 
@@ -19,7 +16,6 @@ button2 = Button(12)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
-lcd.color = [0,100,0]
 csv_path = "/home/pi/Documents/CSV/"
 file_path = ""
 logon = "LOG_ON"
@@ -56,7 +52,7 @@ def read_machvars_db():
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
     mach = c.fetchone()
-    mach = str(mach[0])
+    mach = int(mach[0])
     c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
     part = c.fetchone()
     part = str(part[0])
@@ -78,34 +74,11 @@ def ret_emp_name(id_num):
     return emp_name
               
 
-def set_part_mach():
-    """Sets part number, machine number, and timeout duration"""
-    file = "/home/pi/Desktop/main"
-    with open(file, 'r') as text:
-        for line in text:
-            if len(line.strip()) == 0:      #skips any blank lines
-                pass
-            elif "#" in line:
-                pass
-            else:
-                try:
-                    key, value = line.replace(' ', '').strip().split(",")
-                    key = key.lower()
-                    if "part" in key:
-                        part = value
-                    elif "mach" in key:
-                        mach = value
-                except:
-                    part, mach = None, None
-    return part, mach
-
-
-
 def evaluate(part, mach):
     b = False
     try:
         if part and len(part) != 0:
-            if mach and len(mach) != 0:
+            if type(mach) == int:
                 b = True
     except:
         b = False
@@ -166,28 +139,25 @@ def display_run_info(last_display, last_disp_time):
         last_disp_time = datetime.now()
     return last_display, last_disp_time
 
+def change_msg(msg, sec=1, line=1):
+    lcd.clear()
+    lcd.message(msg, line)
+    time.sleep(sec)
 
 try:    
     while True:
-        print(mode)
         if mode == "setup":
-            lcd.clear()
-            lcd.message("Setup")
+            change_msg("Setup")
             while mode == modes[0]:
                 part_num, mach_num = read_machvars_db()
-                print(part_num, mach_num)
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
-                    
                     if startup is True:
-                        today = date.today()
-                        file_path = create_file_path(day=today)
-                        create_csv(file=file_path)
                         mode = modes[1]
                     else:
-                        #lcd.messsage = setup1_msg
                         time.sleep(.5)
+                        lcd.message("Press Btn", 2)
                         keeplooping = True
                         endtlooptime = datetime.now() + timedelta(seconds=10)
                         while keeplooping == True and datetime.now() <= endtlooptime:
@@ -209,16 +179,12 @@ try:
             lcd.message(standby_info_top, 1)
             lcd.message(standby_info_btm, 2)
             while True:
-                if date.today() != today:
-                    today = date.today()
-                    file_path = create_file_path(day=today)
-                    create_csv(file=file_path)
                 idn, empnum = reader.read_no_block()
-                if empnum != None:
+                if empnum.strip() != None:
                     empnum = empnum.strip()
                     empname = ret_emp_name(empnum)
                     empcount = 0
-                    add_timestamp(logon, file_path)
+                    add_timestamp(logon)
                     mode = modes[3]
                     break
                 if button2.is_pressed:
@@ -227,12 +193,12 @@ try:
                     mode = modes[2]
                     break
         elif mode == "menu1":
-            menu = 1
             lcd.clear()
+            menu = 1
+            time.sleep(.5)
             while True:
                 if menu == 1:
                     lcd.message(menu_msg1)
-                    time.sleep(.5)
                     if button1.is_pressed:
                         button1.wait_for_release()
                         mode = modes[0]
@@ -240,17 +206,14 @@ try:
                     if button2.is_pressed:
                         button2.wait_for_release()
                         menu = 2
-                        lcd.clear()
-                        lcd.message(menu_msg2)
+                        change_msg(menu_msg2, sec=0)
                 if menu == 2:
                     time.sleep(.5)
                     if button1.is_pressed:
                         button1.wait_for_release()
                         total_count = 0
                         write_count(total_count)
-                        lcd.clear()
-                        lcd.message(count_reset)
-                        time.sleep(3)
+                        change_msg(count_reset, sec=3)
                         mode = modes[1]
                         break
                     if button2.is_pressed:
@@ -259,15 +222,15 @@ try:
                         menu = 1
                         lcd.clear()
         elif mode == "run":
-            now = datetime.now()
             sig_out.on()
             run_msg_top1 = f"{part_num}  {mach_num}"
             run_msg_top2 = f"{empnum} {empname}"
             last_display = 0
             last_disp_time = datetime.now()
+            now = datetime.now()
             lcd.clear()
             lcd.message(run_msg_top2, 1)
-            while True:
+            while mode == "run":
                 run_msg_btm = f"Cnt:{empcount}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
                 if shot_sig.is_pressed:
@@ -275,54 +238,39 @@ try:
                     empcount +=1
                     total_count +=1
                     write_count(count=total_count)
-                    add_timestamp(shot, file_path)
+                    add_timestamp(shot)
                     now = datetime.now()
                     time.sleep(0.1)
                 elif datetime.now() >= now + timedelta(seconds=300):
-                    add_timestamp(timeout, file_path)
+                    add_timestamp(timeout)
                     sig_out.off()
-                    lcd.clear()
-                    lcd.message(logoutm)
-                    time.sleep(1)
-                    mode = modes[1]
-                    break                   
+                    change_msg(lougoutm, sec=1)
+                    mode = modes[1]                   
                 if button1.is_pressed:
                     button1.wait_for_release()
-                    add_timestamp(logout, file_path)
                     sig_out.off()
-                    lcd.clear()
-                    lcd.message(logoutm)
-                    time.sleep(1)
+                    add_timestamp(logout)
+                    change_msg(lougoutm, sec=1)
                     mode = modes[1]
-                    break
                 if button2.is_pressed:
                     button2.wait_for_release()
                     sig_out.off()
                     mode = modes[4]
-                    break
         elif mode == "maint":
-            add_timestamp(mas, file_path)
-            lcd.clear()
-            lcd.message(maint_msg)
-            time.sleep(1)
-            while True:
+            add_timestamp(mas)
+            change_msg(maint_msg)
+            while mode == "maint":
                 if button1.is_pressed:
                     button1.wait_for_release()
-                    add_timestamp(mae, file_path)
-                    add_timestamp(logout, file_path)
-                    lcd.clear()
-                    lcd.message(logoutm)
-                    time.sleep(1)
+                    add_timestamp(mae)
+                    add_timestamp(logout)
+                    change_msg(lougoutm, sec=1)
                     mode = modes[1]
-                    break
                 if button2.is_pressed:
                     button2.wait_for_release()
-                    add_timestamp(mae, file_path)
-                    lcd.clear()
-                    lcd.message(maint_end_msg)
-                    time.sleep(1)
+                    add_timestamp(mae)
+                    change_msg(maint_end_msg, sec=1)
                     mode = modes[3]
-                    break
 except KeyboardInterrupt:
     lcd.clear()
 except Exception as e:
