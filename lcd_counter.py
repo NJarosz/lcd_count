@@ -1,10 +1,7 @@
-import board
-import busio
 import time
 from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
-import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from gpiozero import Button, InputDevice, OutputDevice
 import mysql.connector
 
@@ -19,9 +16,6 @@ button2 = Button(12)
 sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
-lcd.color = [0,100,0]
-csv_path = "/home/pi/Documents/CSV/"
-file_path = ""
 logon = "LOG_ON"
 logout = "LOG_OFF"
 timeout = "TIME_OUT"
@@ -56,7 +50,7 @@ def read_machvars_db():
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
     mach = c.fetchone()
-    mach = str(mach[0])
+    mach = int(mach[0])
     c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
     part = c.fetchone()
     part = str(part[0])
@@ -105,7 +99,7 @@ def evaluate(part, mach):
     b = False
     try:
         if part and len(part) != 0:
-            if mach and len(mach) != 0:
+            if mach and type(mach) == int:
                 b = True
     except:
         b = False
@@ -146,8 +140,7 @@ def add_timestamp(cat):
                                 database="tjtest"
                             )
     c = conn.cursor()
-    c.execute("INSERT INTO prod_data (Type, pi, Machine, Part, Employee) VALUES (%s,%s,%s,%s,%s)", 
-              (cat, pi, mach_num, part_num, empnum))
+    c.execute("INSERT INTO prod_data (Type, pi, Machine, Part, Employee) VALUES (%s,%s,%s,%s,%s)", (cat, count_num, mach_num, part_num, empnum))
     conn.commit()
     c.close()
         
@@ -181,9 +174,9 @@ try:
                     total_count = read_count()
                     
                     if startup is True:
-                        today = date.today()
-                        file_path = create_file_path(day=today)
-                        create_csv(file=file_path)
+                        #today = date.today()
+                        #file_path = create_file_path(day=today)
+                        #create_csv(file=file_path)
                         mode = modes[1]
                     else:
                         #lcd.messsage = setup1_msg
@@ -209,16 +202,16 @@ try:
             lcd.message(standby_info_top, 1)
             lcd.message(standby_info_btm, 2)
             while True:
-                if date.today() != today:
-                    today = date.today()
-                    file_path = create_file_path(day=today)
-                    create_csv(file=file_path)
+                #if date.today() != today:
+                    #today = date.today()
+                    #file_path = create_file_path(day=today)
+                    #create_csv(file=file_path)
                 idn, empnum = reader.read_no_block()
                 if empnum != None:
                     empnum = empnum.strip()
                     empname = ret_emp_name(empnum)
                     empcount = 0
-                    add_timestamp(logon, file_path)
+                    add_timestamp(logon)
                     mode = modes[3]
                     break
                 if button2.is_pressed:
@@ -275,11 +268,11 @@ try:
                     empcount +=1
                     total_count +=1
                     write_count(count=total_count)
-                    add_timestamp(shot, file_path)
+                    add_timestamp(shot)
                     now = datetime.now()
                     time.sleep(0.1)
                 elif datetime.now() >= now + timedelta(seconds=300):
-                    add_timestamp(timeout, file_path)
+                    add_timestamp(timeout)
                     sig_out.off()
                     lcd.clear()
                     lcd.message(logoutm)
@@ -288,7 +281,7 @@ try:
                     break                   
                 if button1.is_pressed:
                     button1.wait_for_release()
-                    add_timestamp(logout, file_path)
+                    add_timestamp(logout)
                     sig_out.off()
                     lcd.clear()
                     lcd.message(logoutm)
@@ -301,15 +294,15 @@ try:
                     mode = modes[4]
                     break
         elif mode == "maint":
-            add_timestamp(mas, file_path)
+            add_timestamp(mas)
             lcd.clear()
             lcd.message(maint_msg)
             time.sleep(1)
             while True:
                 if button1.is_pressed:
                     button1.wait_for_release()
-                    add_timestamp(mae, file_path)
-                    add_timestamp(logout, file_path)
+                    add_timestamp(mae)
+                    add_timestamp(logout)
                     lcd.clear()
                     lcd.message(logoutm)
                     time.sleep(1)
@@ -317,7 +310,7 @@ try:
                     break
                 if button2.is_pressed:
                     button2.wait_for_release()
-                    add_timestamp(mae, file_path)
+                    add_timestamp(mae)
                     lcd.clear()
                     lcd.message(maint_end_msg)
                     time.sleep(1)
@@ -326,5 +319,6 @@ try:
 except KeyboardInterrupt:
     lcd.clear()
 except Exception as e:
+    print(e)
     lcd.clear()
     lcd.message("ERROR")
