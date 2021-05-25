@@ -285,3 +285,4 @@ except KeyboardInterrupt:
 except Exception as e:
     lcd.clear()
     lcd.message("ERROR")
+    print(e)
