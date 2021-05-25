@@ -42,14 +42,15 @@ menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
 timeoutm = "Timed Out"
-conn = mysql.connector.connect(
+
+
+def read_machvars_db():
+    conn = mysql.connector.connect(
                                 host="10.0.0.167",
                                 user="python-user",
                                 passwd="blue.marker48",
                                 database="tjtest"
                             )
-
-def read_machvars_db():
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
     mach = c.fetchone()
@@ -62,6 +63,12 @@ def read_machvars_db():
     
 def ret_emp_name(id_num):
     try:
+        conn = mysql.connector.connect(
+                                host="10.0.0.167",
+                                user="python-user",
+                                passwd="blue.marker48",
+                                database="tjtest"
+                            )
         c = conn.cursor()
         c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
         emp_name=c.fetchone()
@@ -273,7 +280,9 @@ try:
                     mode = modes["standby"]                   
                 if button1.is_pressed:
                     button1.wait_for_release()
-                    logout(file_path)
+                    sig_out.off()
+                    add_timestamp(logout, file_path)
+                    change_msg(logoutm, sec=1)
                     mode = modes["standby"]
                 if button2.is_pressed:
                     button2.wait_for_release()
@@ -286,7 +295,9 @@ try:
                 if button1.is_pressed:
                     button1.wait_for_release()
                     add_timestamp(mae, file_path)
-                    logout(file_path)
+                    sig_out.off()
+                    add_timestamp(logout, file_path)
+                    change_msg(logoutm, sec=1)
                     mode = modes["standby"]
                 if button2.is_pressed:
                     button2.wait_for_release()
