@@ -62,8 +62,8 @@ def read_machvars_db():
 def ret_emp_name(id_num):
     conn = mysql.connector.connect(
                                 host="10.0.0.167",
-                                user="root",
-                                passwd="gibson.88",
+                                user="python-user",
+                                passwd="blue.marker48",
                                 database="tjtest"
                             )
     c = conn.cursor()
@@ -114,8 +114,8 @@ def add_timestamp(cat):
     number, part number, id number, user, time, date"""
     conn = mysql.connector.connect(
                                 host="10.0.0.167",
-                                user="root",
-                                passwd="gibson.88",
+                                user="python-user",
+                                passwd="blue.marker48",
                                 database="tjtest"
                             )
     c = conn.cursor()
