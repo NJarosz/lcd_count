@@ -175,19 +175,15 @@ try:
             lcd.message(standby_info_btm, 2)
             while mode == "standby":
                 idn, empnum = reader.read_no_block()
-                try:
+                if empnum != None:
                     empnum = empnum.strip()
-                    print(empnum)
                     if empnum == '':
-                        empnum = None
-                    elif empnum != None:
+                        pass
+                    else:
                         empname = ret_emp_name(empnum)
-                        print(empname)
                         empcount = 0
                         add_timestamp(logon, file_path)
                         mode = "run"
-                except:
-                    pass
                 if button2.is_pressed:
                     button2.wait_for_release()
                     time.sleep(0.2)
