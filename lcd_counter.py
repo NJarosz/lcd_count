@@ -1,11 +1,8 @@
-#import board
-#import busio
 import time
 import csv
 from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
-#import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from gpiozero import Button, InputDevice, OutputDevice
 
 with open("/etc/hostname", "r") as hn:
@@ -188,13 +185,17 @@ try:
                 if date.today() != today:
                     today, file_path = update_csv()
                 idn, emp = reader.read_no_block()
-                if emp != None:
+                try:
                     emp = emp.strip()
-                    #empname = "x0"
-                    empcount = 0
-                    add_timestamp(logon, file_path)
-                    mode = modes[3]
-                    break
+                    if emp == '':
+                        emp = None
+                    elif emp != None:
+                        empcount = 0
+                        add_timestamp(logon, file_path)
+                        mode = modes[3]
+                        break
+                except:
+                    pass
                 if button2.is_pressed:
                     button2.wait_for_release()
                     time.sleep(0.2)
