@@ -174,6 +174,7 @@ try:
                 idn, empnum = reader.read_no_block()
                 try:
                     empnum = empnum.strip()
+                    print(empnum)
                     if empnum == '':
                         empnum = None
                     elif empnum != None:
