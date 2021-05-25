@@ -10,8 +10,8 @@ lcd = I2C_LCD_driver.lcd()
 reader=SimpleMFRC522()
 conn = mysql.connector.connect(
                                 host="10.0.0.167",
-                                user="root",
-                                passwd="pswtest",
+                                user="python-user",
+                                passwd="blue.marker48",
                                 database="tjtest"
                             )
 c = conn.cursor()
