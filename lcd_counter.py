@@ -182,6 +182,7 @@ try:
                         empnum = None
                     elif empnum != None:
                         empname = ret_emp_name(empnum)
+                        print(empname)
                         empcount = 0
                         add_timestamp(logon, file_path)
                         mode = modes[3]
