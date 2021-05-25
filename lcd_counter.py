@@ -59,12 +59,15 @@ def read_machvars_db():
     return part, mach
     
 def ret_emp_name(id_num):
-    c = conn.cursor()
-    c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
-    emp_name=c.fetchone()
-    emp_name=str(emp_name[0])
-    c.close()
-    return emp_name
+    try:
+        c = conn.cursor()
+        c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
+        emp_name=c.fetchone()
+        emp_name=str(emp_name[0])
+        c.close()
+        return emp_name
+    except:
+        return None
               
 
 def evaluate(part, mach):
@@ -178,10 +181,7 @@ try:
                     if empnum == '':
                         empnum = None
                     elif empnum != None:
-                        try:
-                            empname = ret_emp_name(empnum)
-                        except:
-                            pass
+                        empname = ret_emp_name(empnum)
                         empcount = 0
                         add_timestamp(logon, file_path)
                         mode = modes[3]
