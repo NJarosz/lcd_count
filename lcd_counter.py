@@ -237,7 +237,7 @@ try:
             last_disp_time = datetime.now()
             lcd.clear()
             lcd.message(run_msg_top2, 1)
-            while mode == modes[run]:
+            while mode == modes["run"]:
                 run_msg_btm = f"Cnt:{emp_count}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
                 if shot_sig.is_pressed:
