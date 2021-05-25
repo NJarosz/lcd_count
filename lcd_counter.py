@@ -5,12 +5,6 @@ import I2C_LCD_driver
 from gpiozero import Button, InputDevice, OutputDevice
 import mysql.connector
 
-"run" = run
-
-"standby" = standby
-
-"setup" = setup
-
 with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
     
