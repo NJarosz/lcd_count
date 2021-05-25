@@ -5,12 +5,6 @@ from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
 from gpiozero import Button, InputDevice, OutputDevice
 
-"run" = run
-
-"standby" = standby
-
-"setup" = setup
-
 with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
 
