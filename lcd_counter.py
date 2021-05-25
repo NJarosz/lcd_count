@@ -5,6 +5,12 @@ from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
 from gpiozero import Button, InputDevice, OutputDevice
 
+"run" = run
+
+"standby" = standby
+
+"setup" = setup
+
 with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
 
@@ -21,13 +27,13 @@ logout = "LOG_OFF"
 mas = "MAS"
 mae = "MAE"
 shot = "SHOT"
-modes = {setup: "setup",
-        standby: "standby",
-        menu: "menu",
-        run: "run",
-        maint: "maint"
+modes = {"setup": 0,
+         "standby": 1,
+         "menu": 2,
+         "run": 3 ,
+         "maint": 4
          }
-mode = modes[setup]
+mode = modes["setup"]
 startup = True
 count_path = "/home/pi/Documents/totalcount"
 maint_msg = "Maintenance"
@@ -147,17 +153,17 @@ def display_run_info(last_display, last_disp_time):
 
 try:    
     while True:
-        if mode == modes[setup]:
+        if mode == modes["setup"]:
             lcd.clear()
             lcd.message("Setup")
-            while mode == modes[setup]:
+            while mode == modes["setup"]:
                 part_num, mach_num = set_part_mach()
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
                     if startup is True:
                         today, file_path = update_csv()
-                        mode = modes[standby]
+                        mode = modes["standby"]
                     else:
                         #lcd.messsage = setup1_msg
                         time.sleep(.5)
@@ -166,13 +172,13 @@ try:
                         while keeplooping == True and datetime.now() <= endtlooptime:
                             if button1.is_pressed:
                                 button1.wait_for_release()
-                                mode = modes[standby]
+                                mode = modes["standby"]
                                 keeplooping = False
 
                 else:
                     invalid_params()
             startup = False
-        elif mode == modes[standby]:
+        elif mode == modes["standby"]:
             #empname = None
             emp_num = None
             idn = None
@@ -181,7 +187,7 @@ try:
             standby_info_btm = f"Cnt:{total_count}"
             lcd.message(standby_info_top, 1)
             lcd.message(standby_info_btm, 2)
-            while mode = modes[standby]:
+            while mode == modes["standby"]:
                 if date.today() != today:
                     today, file_path = update_csv()
                 idn, emp_num = reader.read_no_block()
@@ -192,21 +198,21 @@ try:
                     else:
                         emp_count = 0
                         add_timestamp(logon, file_path)
-                        mode = modes[run]
+                        mode = modes["run"]
                 if button2.is_pressed:
                     button2.wait_for_release()
                     time.sleep(0.2)
-                    mode = modes[menu]
-        elif mode == modes[menu]:
+                    mode = modes["menu"]
+        elif mode == modes["menu"]:
             menu = 1
             lcd.clear()
-            while mode = modes[menu]:
+            while mode == modes["menu"]:
                 if menu == 1:
                     lcd.message(menu_msg1)
                     time.sleep(.5)
                     if button1.is_pressed:
                         button1.wait_for_release()
-                        mode = modes[setup]
+                        mode = modes["setup"]
                         break
                     if button2.is_pressed:
                         button2.wait_for_release()
@@ -222,14 +228,14 @@ try:
                         lcd.clear()
                         lcd.message(count_reset)
                         time.sleep(3)
-                        mode = modes[standby]
+                        mode = modes["standby"]
                         break
                     if button2.is_pressed:
                         button2.wait_for_release()
                         time.sleep(0.3)
                         menu = 1
                         lcd.clear()
-        elif mode == modes[run]:
+        elif mode == modes["run"]:
             sig_out.on()
             run_msg_top1 = f"{part_num}  {mach_num}"
             run_msg_top2 = f"{emp_num}"
@@ -237,7 +243,7 @@ try:
             last_disp_time = datetime.now()
             lcd.clear()
             lcd.message(run_msg_top2, 1)
-            while mode = modes[run]:
+            while mode == modes[run]:
                 run_msg_btm = f"Cnt:{emp_count}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
                 if shot_sig.is_pressed:
@@ -254,17 +260,17 @@ try:
                     lcd.clear()
                     lcd.message(logoutm)
                     time.sleep(1)
-                    mode = modes[standby]
+                    mode = modes["standby"]
                 if button2.is_pressed:
                     button2.wait_for_release()
                     sig_out.off()
-                    mode = modes[maint]
-        elif mode == modes[maint]:
+                    mode = modes["maint"]
+        elif mode == modes["maint"]:
             add_timestamp(mas, file_path)
             lcd.clear()
             lcd.message(maint_msg)
             time.sleep(1)
-            while mode = modes[maint]:
+            while mode == modes["maint"]:
                 if button1.is_pressed:
                     button1.wait_for_release()
                     add_timestamp(mae, file_path)
@@ -272,14 +278,14 @@ try:
                     lcd.clear()
                     lcd.message(logoutm)
                     time.sleep(1)
-                    mode = modes[standby]
+                    mode = modes["standby"]
                 if button2.is_pressed:
                     button2.wait_for_release()
                     add_timestamp(mae, file_path)
                     lcd.clear()
                     lcd.message(maint_end_msg)
                     time.sleep(1)
-                    mode = modes[run]
+                    mode = modes["run"]
 except KeyboardInterrupt:
     lcd.clear()
 except Exception as e:
