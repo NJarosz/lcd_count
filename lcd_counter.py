@@ -45,8 +45,8 @@ logoutm = "Logged Out"
 def read_machvars_db():
     conn = mysql.connector.connect(
                                 host="10.0.0.167",
-                                user="root",
-                                passwd="pswtest",
+                                user="python-user",
+                                passwd="blue.marker48",
                                 database="tjtest"
                             )
     c = conn.cursor()
