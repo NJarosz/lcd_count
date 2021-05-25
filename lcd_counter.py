@@ -165,7 +165,7 @@ def change_msg(msg, sec=1, line=1):
     lcd.message(msg, line)
     time.sleep(sec)
 
-def logout(file_path):
+def logout_func(file_path):
     sig_out.off()
     add_timestamp(logout, file_path)
     change_msg(logoutm, sec=1)
@@ -279,9 +279,7 @@ try:
                     mode = modes["standby"]                   
                 if button1.is_pressed:
                     button1.wait_for_release()
-                    sig_out.off()
-                    add_timestamp(logout, file_path)
-                    change_msg(logoutm, sec=1)
+                    logout_func(file_path)
                     mode = modes["standby"]
                 if button2.is_pressed:
                     button2.wait_for_release()
@@ -294,9 +292,7 @@ try:
                 if button1.is_pressed:
                     button1.wait_for_release()
                     add_timestamp(mae, file_path)
-                    sig_out.off()
-                    add_timestamp(logout, file_path)
-                    change_msg(logoutm, sec=1)
+                    logout_func(file_path)
                     mode = modes["standby"]
                 if button2.is_pressed:
                     button2.wait_for_release()
