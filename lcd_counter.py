@@ -241,7 +241,7 @@ try:
             run_msg_top1 = f"{part_num}  {mach_num}"
             run_msg_top2 = f"{emp_num}"
             last_display = 0
-            last_disp_time = datetime.now()
+            now, last_disp_time = datetime.now()
             lcd.clear()
             lcd.message(run_msg_top2, 1)
             while mode == modes["run"]:
