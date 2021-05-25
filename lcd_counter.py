@@ -18,6 +18,7 @@ csv_path = "/home/pi/Documents/CSV/"
 file_path = ""
 logon = "LOG_ON"
 logout = "LOG_OFF"
+timeout = "TIME_OUT"
 mas = "MAS"
 mae = "MAE"
 shot = "SHOT"
@@ -37,6 +38,7 @@ menu_msg1 = "Setup Mode"
 menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
+timeoutm = "Timed Out"
 
 
 def set_part_mach():
@@ -144,6 +146,11 @@ def display_run_info(last_display, last_disp_time):
         last_disp_time = datetime.now()
     return last_display, last_disp_time
 
+def change_msg(msg, sec=1, line=1):
+    lcd.clear()
+    lcd.message(msg, line)
+    time.sleep(sec)
+
 
 try:    
     while True:
@@ -246,7 +253,13 @@ try:
                     total_count +=1
                     write_count(part_count=total_count)
                     add_timestamp(shot, file_path)
+                    now = datetime.now()
                     time.sleep(0.1)
+                if datetime.now() >= now + timedelta(seconds=300):
+                    add_timestamp(timeout, file_path)
+                    sig_out.off()
+                    change_msg(timeoutm, sec=1)
+                    mode = modes["standby"]
                 if button1.is_pressed:
                     button1.wait_for_release()
                     add_timestamp(logout, file_path)
@@ -285,4 +298,3 @@ except KeyboardInterrupt:
 except Exception as e:
     lcd.clear()
     lcd.message("ERROR")
-    print(e)
