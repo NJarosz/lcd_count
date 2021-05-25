@@ -21,13 +21,13 @@ logout = "LOG_OFF"
 mas = "MAS"
 mae = "MAE"
 shot = "SHOT"
-modes = {0: "setup",
-        1: "standby",
-        2: "menu1",
-        3: "run",
-        4: "maint"
+modes = {setup: "setup",
+        standby: "standby",
+        menu: "menu",
+        run: "run",
+        maint: "maint"
          }
-mode = modes[0]
+mode = modes[setup]
 startup = True
 count_path = "/home/pi/Documents/totalcount"
 maint_msg = "Maintenance"
@@ -82,11 +82,11 @@ def read_count(file=count_path):
     return total_count
 
 
-def write_count(count, file=count_path):
-    if count > 999999:
-        count = 0
+def write_count(part_count, file=count_path):
+    if part_count > 999999:
+        part_count = 0
     with open(file, "w") as f:
-        f.write(str(count))
+        f.write(str(part_count))
                 
 
 def invalid_params():
@@ -119,7 +119,7 @@ def add_timestamp(cat, file):
     filename. Adds timestamp to that csv including machine
     number, part number, id number, user, time, date"""
     now = time.strftime("%H:%M:%S")
-    data = (cat, pi, mach_num, part_num, emp, now, today)
+    data = (cat, pi, mach_num, part_num, emp_num, now, today)
     with open(file, "a", newline="") as fa:
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
@@ -147,17 +147,17 @@ def display_run_info(last_display, last_disp_time):
 
 try:    
     while True:
-        if mode == "setup":
+        if mode == modes[setup]:
             lcd.clear()
             lcd.message("Setup")
-            while mode == modes[0]:
+            while mode == modes[setup]:
                 part_num, mach_num = set_part_mach()
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
                     if startup is True:
                         today, file_path = update_csv()
-                        mode = modes[1]
+                        mode = modes[standby]
                     else:
                         #lcd.messsage = setup1_msg
                         time.sleep(.5)
@@ -166,51 +166,47 @@ try:
                         while keeplooping == True and datetime.now() <= endtlooptime:
                             if button1.is_pressed:
                                 button1.wait_for_release()
-                                mode = modes[1]
+                                mode = modes[standby]
                                 keeplooping = False
 
                 else:
                     invalid_params()
             startup = False
-        elif mode == "standby":
+        elif mode == modes[standby]:
             #empname = None
-            emp = None
+            emp_num = None
             idn = None
             lcd.clear()
             standby_info_top = f"{part_num} {mach_num}"
             standby_info_btm = f"Cnt:{total_count}"
             lcd.message(standby_info_top, 1)
             lcd.message(standby_info_btm, 2)
-            while True:
+            while mode = modes[standby]:
                 if date.today() != today:
                     today, file_path = update_csv()
-                idn, emp = reader.read_no_block()
-                try:
-                    emp = emp.strip()
-                    if emp == '':
-                        emp = None
-                    elif emp != None:
-                        empcount = 0
+                idn, emp_num = reader.read_no_block()
+                if emp_num != None:
+                    emp_num = emp_num.strip()
+                    if emp_num == '':
+                        pass
+                    else:
+                        emp_count = 0
                         add_timestamp(logon, file_path)
-                        mode = modes[3]
-                        break
-                except:
-                    pass
+                        mode = modes[run]
                 if button2.is_pressed:
                     button2.wait_for_release()
                     time.sleep(0.2)
-                    mode = modes[2]
-                    break
-        elif mode == "menu1":
+                    mode = modes[menu]
+        elif mode == modes[menu]:
             menu = 1
             lcd.clear()
-            while True:
+            while mode = modes[menu]:
                 if menu == 1:
                     lcd.message(menu_msg1)
                     time.sleep(.5)
                     if button1.is_pressed:
                         button1.wait_for_release()
-                        mode = modes[0]
+                        mode = modes[setup]
                         break
                     if button2.is_pressed:
                         button2.wait_for_release()
@@ -222,33 +218,33 @@ try:
                     if button1.is_pressed:
                         button1.wait_for_release()
                         total_count = 0
-                        write_count(total_count)
+                        write_count(part_count=total_count)
                         lcd.clear()
                         lcd.message(count_reset)
                         time.sleep(3)
-                        mode = modes[1]
+                        mode = modes[standby]
                         break
                     if button2.is_pressed:
                         button2.wait_for_release()
                         time.sleep(0.3)
                         menu = 1
                         lcd.clear()
-        elif mode == "run":
+        elif mode == modes[run]:
             sig_out.on()
             run_msg_top1 = f"{part_num}  {mach_num}"
-            run_msg_top2 = f"{emp}"
+            run_msg_top2 = f"{emp_num}"
             last_display = 0
             last_disp_time = datetime.now()
             lcd.clear()
             lcd.message(run_msg_top2, 1)
-            while True:
-                run_msg_btm = f"Cnt:{empcount}, {total_count}"
+            while mode = modes[run]:
+                run_msg_btm = f"Cnt:{emp_count}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
                 if shot_sig.is_pressed:
                     shot_sig.wait_for_release()
-                    empcount +=1
+                    emp_count +=1
                     total_count +=1
-                    write_count(count=total_count)
+                    write_count(part_count=total_count)
                     add_timestamp(shot, file_path)
                     time.sleep(0.1)
                 if button1.is_pressed:
@@ -258,19 +254,17 @@ try:
                     lcd.clear()
                     lcd.message(logoutm)
                     time.sleep(1)
-                    mode = modes[1]
-                    break
+                    mode = modes[standby]
                 if button2.is_pressed:
                     button2.wait_for_release()
                     sig_out.off()
-                    mode = modes[4]
-                    break
-        elif mode == "maint":
+                    mode = modes[maint]
+        elif mode == modes[maint]:
             add_timestamp(mas, file_path)
             lcd.clear()
             lcd.message(maint_msg)
             time.sleep(1)
-            while True:
+            while mode = modes[maint]:
                 if button1.is_pressed:
                     button1.wait_for_release()
                     add_timestamp(mae, file_path)
@@ -278,16 +272,14 @@ try:
                     lcd.clear()
                     lcd.message(logoutm)
                     time.sleep(1)
-                    mode = modes[1]
-                    break
+                    mode = modes[standby]
                 if button2.is_pressed:
                     button2.wait_for_release()
                     add_timestamp(mae, file_path)
                     lcd.clear()
                     lcd.message(maint_end_msg)
                     time.sleep(1)
-                    mode = modes[3]
-                    break
+                    mode = modes[run]
 except KeyboardInterrupt:
     lcd.clear()
 except Exception as e:
