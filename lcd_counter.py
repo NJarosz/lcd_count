@@ -46,7 +46,7 @@ def read_machvars_db():
     conn = mysql.connector.connect(
                                 host="10.0.0.167",
                                 user="root",
-                                passwd="gibson.88",
+                                passwd="pswtest",
                                 database="tjtest"
                             )
     c = conn.cursor()
