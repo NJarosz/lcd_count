@@ -133,7 +133,7 @@ def add_timestamp(cat, file):
     filename. Adds timestamp to that csv including machine
     number, part number, id number, user, time, date"""
     now = time.strftime("%H:%M:%S")
-    data = (cat, pi, mach_num, part_num, emp_num, now, today)
+    data = (cat, count_num, mach_num, part_num, emp_num, now, today)
     with open(file, "a", newline="") as fa:
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
@@ -176,7 +176,6 @@ try:
             change_msg("Setup")
             while mode == modes["setup"]:
                 part_num, mach_num = read_machvars_db()
-                print(part_num, mach_num)
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
