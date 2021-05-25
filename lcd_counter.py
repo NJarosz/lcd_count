@@ -166,13 +166,16 @@ try:
                         today, file_path = update_csv()
                         mode = modes["standby"]
                     else:
-                        #lcd.messsage = setup1_msg
                         time.sleep(.5)
+                        lcd.messsage("Press Btn", 2)
                         keeplooping = True
-                        endtlooptime = datetime.now() + timedelta(seconds=10)
-                        while keeplooping == True and datetime.now() <= endtlooptime:
+                        endlooptime = datetime.now() + timedelta(seconds=10)
+                        while keeplooping == True:
                             if button1.is_pressed:
                                 button1.wait_for_release()
+                                mode = modes["standby"]
+                                keeplooping = False
+                            elif datetime.now() >= endlooptime:
                                 mode = modes["standby"]
                                 keeplooping = False
 
