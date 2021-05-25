@@ -258,7 +258,7 @@ try:
                 elif datetime.now() >= now + timedelta(seconds=300):
                     add_timestamp(timeout, file_path)
                     sig_out.off()
-                    change_msg(timeoutm, sec=1)
+                    change_msg(timeoutm, sec=5)
                     mode = modes["standby"]
                 if button1.is_pressed:
                     button1.wait_for_release()
