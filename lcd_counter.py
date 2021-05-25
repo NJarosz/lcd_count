@@ -26,7 +26,7 @@ mae = "MAE"
 shot = "SHOT"
 modes = {0: "setup",
         1: "standby",
-        2: "menu1",
+        2: "menu",
         3: "run",
         4: "maint"
          }
@@ -143,13 +143,13 @@ try:
     while True:
         if mode == "setup":
             change_msg("Setup")
-            while mode == modes[0]:
+            while mode == "setup":
                 part_num, mach_num = read_machvars_db()
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
                     if startup is True:
-                        mode = modes[1]
+                        mode = "standby"
                     else:
                         time.sleep(.5)
                         lcd.message("Press Btn", 2)
@@ -158,7 +158,7 @@ try:
                         while keeplooping == True and datetime.now() <= endtlooptime:
                             if button1.is_pressed:
                                 button1.wait_for_release()
-                                mode = modes[1]
+                                mode = "standby"
                                 keeplooping = False
 
                 else:
@@ -173,7 +173,7 @@ try:
             standby_info_btm = f"Cnt:{total_count} Mch:{mach_num}"
             lcd.message(standby_info_top, 1)
             lcd.message(standby_info_btm, 2)
-            while True:
+            while mode == "standby":
                 idn, empnum = reader.read_no_block()
                 try:
                     empnum = empnum.strip()
@@ -185,26 +185,24 @@ try:
                         print(empname)
                         empcount = 0
                         add_timestamp(logon, file_path)
-                        mode = modes[3]
-                        break
+                        mode = "run"
                 except:
                     pass
                 if button2.is_pressed:
                     button2.wait_for_release()
                     time.sleep(0.2)
-                    mode = modes[2]
+                    mode = "menu"
                     break
-        elif mode == "menu1":
+        elif mode == "menu":
             lcd.clear()
             menu = 1
             time.sleep(.5)
-            while True:
+            while mode == "menu":
                 if menu == 1:
                     lcd.message(menu_msg1)
                     if button1.is_pressed:
                         button1.wait_for_release()
-                        mode = modes[0]
-                        break
+                        mode = "setup"
                     if button2.is_pressed:
                         button2.wait_for_release()
                         menu = 2
@@ -216,8 +214,7 @@ try:
                         total_count = 0
                         write_count(total_count)
                         change_msg(count_reset, sec=3)
-                        mode = modes[1]
-                        break
+                        mode = "standby"
                     if button2.is_pressed:
                         button2.wait_for_release()
                         time.sleep(0.3)
@@ -251,11 +248,11 @@ try:
                 if button1.is_pressed:
                     button1.wait_for_release()
                     logout()
-                    mode = modes[1]
+                    mode = "standby"
                 if button2.is_pressed:
                     button2.wait_for_release()
                     sig_out.off()
-                    mode = modes[4]
+                    mode = "maint"
         elif mode == "maint":
             add_timestamp(mas)
             change_msg(maint_msg)
@@ -264,12 +261,12 @@ try:
                     button1.wait_for_release()
                     add_timestamp(mae)
                     logout()
-                    mode = modes[1]
+                    mode = "standby"
                 if button2.is_pressed:
                     button2.wait_for_release()
                     add_timestamp(mae)
                     change_msg(maint_end_msg, sec=1)
-                    mode = modes[3]
+                    mode = "run"
 except KeyboardInterrupt:
     lcd.clear()
 except Exception as e:
