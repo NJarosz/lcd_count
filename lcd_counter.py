@@ -40,15 +40,14 @@ menu_msg1 = "Setup Mode"
 menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
-
-
-def read_machvars_db():
-    conn = mysql.connector.connect(
+conn = mysql.connector.connect(
                                 host="10.0.0.167",
                                 user="python-user",
                                 passwd="blue.marker48",
                                 database="tjtest"
                             )
+
+def read_machvars_db():
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
     mach = c.fetchone()
@@ -60,12 +59,6 @@ def read_machvars_db():
     return part, mach
     
 def ret_emp_name(id_num):
-    conn = mysql.connector.connect(
-                                host="10.0.0.167",
-                                user="python-user",
-                                passwd="blue.marker48",
-                                database="tjtest"
-                            )
     c = conn.cursor()
     c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
     emp_name=c.fetchone()
@@ -112,12 +105,6 @@ def add_timestamp(cat):
     """opens or creates a csv file with todays date in
     filename. Adds timestamp to that csv including machine
     number, part number, id number, user, time, date"""
-    conn = mysql.connector.connect(
-                                host="10.0.0.167",
-                                user="python-user",
-                                passwd="blue.marker48",
-                                database="tjtest"
-                            )
     c = conn.cursor()
     c.execute("INSERT INTO prod_data (Type, pi, Machine, Part, Employee) VALUES (%s,%s,%s,%s,%s)", 
               (cat, pi, mach_num, part_num, empnum))
@@ -190,6 +177,10 @@ try:
                     if empnum == '':
                         empnum = None
                     elif empnum != None:
+                        try:
+                            empname = ret_emp_name(empnum)
+                        except:
+                            pass
                         empcount = 0
                         add_timestamp(logon, file_path)
                         mode = modes[3]
