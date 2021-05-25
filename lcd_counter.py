@@ -1,4 +1,5 @@
 import time
+import csv
 from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
@@ -40,6 +41,7 @@ menu_msg1 = "Setup Mode"
 menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
+timeoutm = "Timed Out"
 conn = mysql.connector.connect(
                                 host="10.0.0.167",
                                 user="python-user",
@@ -124,7 +126,7 @@ def add_timestamp(cat, file):
     filename. Adds timestamp to that csv including machine
     number, part number, id number, user, time, date"""
     now = time.strftime("%H:%M:%S")
-    data = (cat, pi, mach_num, part_num, emp, now, today)
+    data = (cat, pi, mach_num, part_num, emp_num, now, today)
     with open(file, "a", newline="") as fa:
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
@@ -159,7 +161,7 @@ def change_msg(msg, sec=1, line=1):
 def logout(file_path):
     sig_out.off()
     add_timestamp(logout, file_path)
-    change_msg(lougoutm, sec=1)
+    change_msg(logoutm, sec=1)
 
 try:    
     while True:
@@ -167,6 +169,7 @@ try:
             change_msg("Setup")
             while mode == modes["setup"]:
                 part_num, mach_num = read_machvars_db()
+                print(part_num, mach_num)
                 test = evaluate(part_num, mach_num)
                 if test is True:
                     total_count = read_count()
@@ -177,10 +180,13 @@ try:
                         time.sleep(.5)
                         lcd.message("Press Btn", 2)
                         keeplooping = True
-                        endtlooptime = datetime.now() + timedelta(seconds=10)
-                        while keeplooping == True and datetime.now() <= endtlooptime:
+                        endlooptime = datetime.now() + timedelta(seconds=10)
+                        while keeplooping == True:
                             if button1.is_pressed:
                                 button1.wait_for_release()
+                                mode = modes["standby"]
+                                keeplooping = False
+                            elif datetime.now() >= endlooptime:
                                 mode = modes["standby"]
                                 keeplooping = False
 
@@ -263,8 +269,8 @@ try:
                 elif datetime.now() >= now + timedelta(seconds=300):
                     add_timestamp(timeout, file_path)
                     sig_out.off()
-                    change_msg(lougoutm, sec=1)
-                    mode = modes[1]                   
+                    change_msg(timeoutm, sec=5)
+                    mode = modes["standby"]                   
                 if button1.is_pressed:
                     button1.wait_for_release()
                     logout(file_path)
@@ -292,3 +298,4 @@ except KeyboardInterrupt:
 except Exception as e:
     lcd.clear()
     lcd.message("ERROR")
+    print(e)
