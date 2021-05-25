@@ -255,7 +255,7 @@ try:
                     add_timestamp(shot, file_path)
                     now = datetime.now()
                     time.sleep(0.1)
-                if datetime.now() >= now + timedelta(seconds=300):
+                elif datetime.now() >= now + timedelta(seconds=300):
                     add_timestamp(timeout, file_path)
                     sig_out.off()
                     change_msg(timeoutm, sec=1)
