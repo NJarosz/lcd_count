@@ -170,7 +170,7 @@ try:
             while mode == modes["setup"]:
                 part_num, mach_num = set_part_mach()
                 test = evaluate(part_num, mach_num)
-                if test is True:
+                if test is True:        # if part and machine number are valid
                     total_count = read_count()
                     if startup is True:
                         today, file_path = update_csv()
@@ -193,9 +193,9 @@ try:
                     invalid_params()
             startup = False
         elif mode == modes["standby"]:  # Used to access the menu, else wait for login
-            #empname = None
+            #empname = None [Need to add lookup functionality]
             emp_num = None
-            idn = None
+            idn = None  #dummy variable
             lcd.clear()
             standby_info_top = f"{part_num} {mach_num}"
             standby_info_btm = f"Cnt:{total_count}"
@@ -207,13 +207,13 @@ try:
                 idn, emp_num = reader.read_no_block()
                 if emp_num != None:
                     emp_num = emp_num.strip()
-                    if emp_num == '':
+                    if emp_num == '':       # Ignores empty strings
                         pass
                     else:
                         emp_count = 0
                         add_timestamp(logon, file_path)
                         mode = modes["run"]
-                if button2.is_pressed:
+                if button2.is_pressed:      # Sends program to 'menu' mode
                     button2.wait_for_release()
                     time.sleep(0.2)
                     mode = modes["menu"]
@@ -224,18 +224,18 @@ try:
                 if menu == 1:
                     lcd.message(menu_msg1)
                     time.sleep(.5)
-                    if button1.is_pressed:
+                    if button1.is_pressed:      # Sends program to 'setup' mode
                         button1.wait_for_release()
                         mode = modes["setup"]
                         break
-                    if button2.is_pressed:
+                    if button2.is_pressed:      # Toggles menu options
                         button2.wait_for_release()
                         menu = 2
                         lcd.clear()
                         lcd.message(menu_msg2)
                 if menu == 2:
                     time.sleep(.5)
-                    if button1.is_pressed:
+                    if button1.is_pressed:      #resets counts
                         button1.wait_for_release()
                         total_count = 0
                         write_count(part_count=total_count)
@@ -244,13 +244,13 @@ try:
                         time.sleep(3)
                         mode = modes["standby"]
                         break
-                    if button2.is_pressed:
+                    if button2.is_pressed:      #toggles menu options
                         button2.wait_for_release()
                         time.sleep(0.3)
                         menu = 1
                         lcd.clear()
         elif mode == modes["run"]:      # Requires login event, allows machine to be run
-            sig_out.on()
+            sig_out.on()           # output to PLC, allows mach to run
             run_msg_top1 = f"{part_num}  {mach_num}"
             run_msg_top2 = f"{emp_num}"
             last_display = 0
@@ -260,7 +260,7 @@ try:
             while mode == modes["run"]:
                 run_msg_btm = f"Cnt:{emp_count}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
-                if shot_sig.is_pressed:
+                if shot_sig.is_pressed:     # Incoming signal from PLC, increases count, adds tmstmp
                     shot_sig.wait_for_release()
                     emp_count +=1
                     total_count +=1
@@ -268,12 +268,12 @@ try:
                     add_timestamp(shot, file_path)
                     now = datetime.now()
                     time.sleep(0.1)
-                elif datetime.now() >= now + timedelta(seconds=300):
+                elif datetime.now() >= now + timedelta(seconds=300):        # Timeout functionality
                     add_timestamp(timeout, file_path)
                     sig_out.off()
                     change_msg(timeoutm, sec=5)
                     mode = modes["standby"]
-                if button1.is_pressed:
+                if button1.is_pressed:          # Logs out
                     button1.wait_for_release()
                     add_timestamp(logout, file_path)
                     sig_out.off()
@@ -281,7 +281,7 @@ try:
                     lcd.message(logoutm)
                     time.sleep(1)
                     mode = modes["standby"]
-                if button2.is_pressed:
+                if button2.is_pressed:              # Enters 'Maint' mode
                     button2.wait_for_release()
                     sig_out.off()
                     mode = modes["maint"]
@@ -291,7 +291,7 @@ try:
             lcd.message(maint_msg)
             time.sleep(1)
             while mode == modes["maint"]:
-                if button1.is_pressed:
+                if button1.is_pressed:          # Ends 'Maint' mode and logs out
                     button1.wait_for_release()
                     add_timestamp(mae, file_path)
                     add_timestamp(logout, file_path)
@@ -299,7 +299,7 @@ try:
                     lcd.message(logoutm)
                     time.sleep(1)
                     mode = modes["standby"]
-                if button2.is_pressed:
+                if button2.is_pressed:          # Ends 'Maint' mode and enters 'run' mode
                     button2.wait_for_release()
                     add_timestamp(mae, file_path)
                     lcd.clear()
