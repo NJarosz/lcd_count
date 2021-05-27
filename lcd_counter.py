@@ -5,12 +5,12 @@ from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
 from gpiozero import Button, InputDevice, OutputDevice
 import mysql.connector
+import os
 
 with open("/etc/hostname", "r") as hn:
     pi = hn.readline().rstrip("\n")
     
 count_num = int(''.join(i for i in pi if i.isdigit()))
-
 shot_sig = Button(4)
 button1 = Button(26)
 button2 = Button(12)
@@ -28,7 +28,7 @@ shot = "SHOT"
 modes = {"setup": 0,
          "standby": 1,
          "menu": 2,
-         "run": 3 ,
+         "run": 3,
          "maint": 4
          }
 mode = modes["setup"]
@@ -42,14 +42,20 @@ menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
 timeoutm = "Timed Out"
-
+db_host = '10.0.0.167'
+db_name = 'tjtest'
+try:
+    db_user = os.environ.get('DB_USER_1')
+    db_psw = os.environ.get('DB_PSW_1')
+except:
+    pass
 
 def read_machvars_db():
     conn = mysql.connector.connect(
-                                host="10.0.0.167",
-                                user="python-user",
-                                passwd="blue.marker48",
-                                database="tjtest"
+                                host=db_host,
+                                user=db_user,
+                                passwd=db_psw,
+                                database=db_name
                             )
     c = conn.cursor()
     c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
@@ -64,10 +70,10 @@ def read_machvars_db():
 def ret_emp_name(id_num):
     try:
         conn = mysql.connector.connect(
-                                host="10.0.0.167",
-                                user="python-user",
-                                passwd="blue.marker48",
-                                database="tjtest"
+                                host=db_host,
+                                user=db_user,
+                                passwd=db_psw,
+                                database=db_name
                             )
         c = conn.cursor()
         c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
