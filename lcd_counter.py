@@ -65,6 +65,7 @@ def set_part_mach():
 
 
 def evaluate(part, mach):
+    """Makes sure part and machine number are valid entries"""
     b = False
     try:
         if part and len(part) != 0:
@@ -75,6 +76,7 @@ def evaluate(part, mach):
     return b
 
 def read_count(file=count_path):
+    """Reads/ returns running total part count"""
     with open(file, "r", newline="") as f:
         total_count = f.readline()
         if len(str(total_count)) == 0:
@@ -85,6 +87,7 @@ def read_count(file=count_path):
 
 
 def write_count(part_count, file=count_path):
+    """Writes total part count to totalcount file"""
     if part_count > 999999:
         part_count = 0
     with open(file, "w") as f:
@@ -92,6 +95,7 @@ def write_count(part_count, file=count_path):
                 
 
 def invalid_params():
+    """Prints invalid params msg to LCD"""
     lcd.clear()
     lcd.message(invalid_msg)
     time.sleep(10)
@@ -99,6 +103,7 @@ def invalid_params():
 
 
 def create_file_path(day, path=csv_path):
+    """Creates a new file path from today's date and pi name"""
     filename = day.strftime("%Y%m%d") + f"{pi}.csv"
     file_path = path + filename
     return file_path
@@ -127,12 +132,16 @@ def add_timestamp(cat, file):
         writer.writerow(data)
    
 def update_csv():
+    """Updates the CSV file path with Today's date
+    and creates a new csv from that file name"""
     today = date.today()
     file_path = create_file_path(day=today)
     create_csv(file=file_path)
     return today, file_path
         
 def display_run_info(last_display, last_disp_time):
+    """Switches between alternate LCD messages while program
+    is in 'run' mode- top1 is emp number, top2 is part/mach num"""
     lcd.message(run_msg_btm, 2)
     if datetime.now() > last_disp_time + timedelta(seconds=5):
         if last_display != 1:
@@ -147,6 +156,7 @@ def display_run_info(last_display, last_disp_time):
     return last_display, last_disp_time
 
 def change_msg(msg, sec=1, line=1):
+    """quick function to change lcd messages"""
     lcd.clear()
     lcd.message(msg, line)
     time.sleep(sec)
@@ -154,7 +164,7 @@ def change_msg(msg, sec=1, line=1):
 
 try:    
     while True:
-        if mode == modes["setup"]:
+        if mode == modes["setup"]:  # Used to set part/mach number
             lcd.clear()
             lcd.message("Setup")
             while mode == modes["setup"]:
@@ -182,7 +192,7 @@ try:
                 else:
                     invalid_params()
             startup = False
-        elif mode == modes["standby"]:
+        elif mode == modes["standby"]:  # Used to access the menu, else wait for login
             #empname = None
             emp_num = None
             idn = None
@@ -207,7 +217,7 @@ try:
                     button2.wait_for_release()
                     time.sleep(0.2)
                     mode = modes["menu"]
-        elif mode == modes["menu"]:
+        elif mode == modes["menu"]:     # Toggle between Setup Mode/ Reset Count
             menu = 1
             lcd.clear()
             while mode == modes["menu"]:
@@ -239,7 +249,7 @@ try:
                         time.sleep(0.3)
                         menu = 1
                         lcd.clear()
-        elif mode == modes["run"]:
+        elif mode == modes["run"]:      # Requires login event, allows machine to be run
             sig_out.on()
             run_msg_top1 = f"{part_num}  {mach_num}"
             run_msg_top2 = f"{emp_num}"
@@ -275,7 +285,7 @@ try:
                     button2.wait_for_release()
                     sig_out.off()
                     mode = modes["maint"]
-        elif mode == modes["maint"]:
+        elif mode == modes["maint"]:        # Accessed from Run mode- creates "MAS" timestamp and pauses machine from running
             add_timestamp(mas, file_path)
             lcd.clear()
             lcd.message(maint_msg)
