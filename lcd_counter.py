@@ -177,7 +177,7 @@ try:
                         mode = modes["standby"]
                     else:
                         time.sleep(.5)
-                        lcd.messsage("Press Btn", 2)
+                        lcd.message("Press Btn", 2)
                         keeplooping = True
                         endlooptime = datetime.now() + timedelta(seconds=10)
                         while keeplooping == True:
@@ -223,7 +223,7 @@ try:
             while mode == modes["menu"]:
                 if menu == 1:
                     lcd.message(menu_msg1)
-                    time.sleep(.5)
+                    time.sleep(0.3)
                     if button1.is_pressed:      # Sends program to 'setup' mode
                         button1.wait_for_release()
                         mode = modes["setup"]
@@ -234,7 +234,7 @@ try:
                         lcd.clear()
                         lcd.message(menu_msg2)
                 if menu == 2:
-                    time.sleep(.5)
+                    time.sleep(0.3)
                     if button1.is_pressed:      #resets counts
                         button1.wait_for_release()
                         total_count = 0
