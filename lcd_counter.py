@@ -144,11 +144,7 @@ def add_timestamp(cat, file):
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
 
-def update_csv():
-    today = date.today()
-    file_path = create_file_path(day=today)
-    create_csv(file=file_path)
-    return today, file_path
+
 
         
 
