@@ -34,7 +34,7 @@ modes = {"setup": 0,
          "run": 3,
          "maint": 4
          }
-mode = modes["standby"]
+mode = modes["setup"]
 startup = True
 maint_msg = "Maintenance"
 maint_end_msg = "Maintenance End"
