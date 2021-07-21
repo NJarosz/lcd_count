@@ -4,6 +4,8 @@ from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
 from gpiozero import Button, InputDevice, OutputDevice
+import pyodbc
+import pickle
 import mysql.connector
 import os
 
@@ -46,12 +48,12 @@ timeoutm = "Timed Out"
 
 
 try:
-    db_user = piuser
-    db_psw =
+    db_user = "piuser"
+    db_psw = "pi"
 except:
     pass
 
-cnx_string = 'driver={ODBC Driver 17 for SQL Server}; \
+cnx_string = 'driver={FreeTDS}; \
                 server=DESKTOP-0S4MG07\SQLEXPRESS; PORT=1433\
                 DATABASE=tjtest; \
                 UID=' +db_user+ '; PWD=' +db_psw+ ";"
