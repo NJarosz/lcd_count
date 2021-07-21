@@ -66,18 +66,20 @@ prod_vars_dict = read_pckl_counts(prod_vars_pkl)
 
 def read_machvars_db(count_num=count_num):
     try:
-        cnx = mysql.connector.connect(host="10.0.0.167",
-    user = db_user,
-    passwd = db_psw,
-    database = "tjtest")
-        c = cnx.cursor()
-        c.execute("SELECT mach FROM datavars WHERE counter = %s", count_num)
+        conn = mysql.connector.connect(
+            host=db_host,
+            user=db_user,
+            passwd=db_psw,
+            database=db_name
+        )
+        c = conn.cursor()
+        c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
         mach = c.fetchone()
         mach = str(mach[0])
-        c.execute("SELECT part FROM datavars WHERE counter = %s", count_num)
+        c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
         part = c.fetchone()
         part = str(part[0])
-        c.execute("SELECT countset FROM daravars WHERE counter = %s", count_num)
+        c.execute("SELECT countset FROM daravars WHERE counter = %s", (count_num,))
         countset = c.fetchone()
         countset = int(countset[0])
         c.close()
@@ -90,8 +92,13 @@ def read_machvars_db(count_num=count_num):
     
 def ret_emp_name(id_num):
     try:
-        cnx = pyodbc.connect(cnx_string)
-        c = cnx.cursor()
+        conn = mysql.connector.connect(
+            host=db_host,
+            user=db_user,
+            passwd=db_psw,
+            database=db_name
+        )
+        c = conn.cursor()
         c.execute("SELECT name FROM employees WHERE id=?", (id_num))
         emp_name=c.fetchone()
         emp_name=str(emp_name[0])
