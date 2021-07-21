@@ -34,7 +34,7 @@ modes = {"setup": 0,
          "run": 3,
          "maint": 4
          }
-mode = modes["setup"]
+mode = modes["standby"]
 startup = True
 maint_msg = "Maintenance"
 maint_end_msg = "Maintenance End"
@@ -237,32 +237,45 @@ try:
                 else:
                     invalid_params()
             startup = False
-        elif mode == modes["standby"]:
+        if mode == modes["standby"]:
             emp_name = None
             emp_num = None
             idn = None
-            lcd.clear()
-            standby_info_top = f"Part:{part_num}"
-            standby_info_btm = f"Cnt:{total_count} Mch:{mach_num}"
-            lcd.message(standby_info_top, 1)
-            lcd.message(standby_info_btm, 2)
-            while mode == modes["standby"]:
-                if date.today() != today:
-                    today, file_path = update_csv()
-                idn, emp_num = reader.read_no_block()
-                if emp_num != None:
-                    emp_num = emp_num.strip()
-                    if emp_num == '':
-                        pass
-                    else:
-                        emp_name = ret_emp_name(emp_num)
-                        emp_count = 0
-                        add_timestamp(logon, file_path)
-                        mode = modes["run"]
-                if button2.is_pressed:
-                    button2.wait_for_release()
-                    time.sleep(0.2)
-                    mode = modes["menu"]
+            part_num, mach_num, countset = read_machvars_db()
+            test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
+            if test is True:
+                count_dict = read_pckl_counts(count_pkl)
+                total_count = count_dict['totalcount']
+                run_count = count_dict['runcount']
+                lcd.clear()
+                standby_info_top = f"Part:{part_num}"
+                standby_info_btm = f"Cnt:{total_count} Mch:{mach_num}"
+                lcd.message(standby_info_top, 1)
+                lcd.message(standby_info_btm, 2)
+                timer_start = datetime.now()
+                while mode == modes["standby"]:
+                    if datetime.now() >= timer_start + timedelta(seconds=7):
+                        part_num, mach_num, countset = read_machvars_db()
+                        test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
+                        timer_start = datetime.now()
+                    if date.today() != today:
+                        today, file_path = update_csv()
+                    idn, emp_num = reader.read_no_block()
+                    if emp_num != None:
+                        emp_num = emp_num.strip()
+                        if emp_num == '':
+                            pass
+                        else:
+                            emp_name = ret_emp_name(emp_num)
+                            emp_count = 0
+                            add_timestamp(logon, file_path)
+                            mode = modes["run"]
+                    if button2.is_pressed:
+                        button2.wait_for_release()
+                        time.sleep(0.2)
+                        mode = modes["menu"]
+            else:
+                invalid_params()
         elif mode == modes["menu"]:
             lcd.clear()
             menu = 1
