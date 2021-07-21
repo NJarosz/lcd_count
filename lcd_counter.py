@@ -137,8 +137,9 @@ def count_reset(runcount):
     global count_dict
     runcount = 0
     count_dict['runcount'] = runcount
+    save_vars(count_dict, count_pkl)
     lcd.clear()
-    lcd.message("PRESS BUTTON 1",1)
+    lcd.message("PRESS BUTTON 2",1)
     lcd.message("TO RESET", 2)
     return runcount
                 
