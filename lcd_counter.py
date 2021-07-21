@@ -4,7 +4,6 @@ from datetime import datetime, date, timedelta
 from mfrc522 import SimpleMFRC522
 import I2C_LCD_driver
 from gpiozero import Button, InputDevice, OutputDevice
-import pyodbc
 import pickle
 import mysql.connector
 import os
@@ -53,12 +52,6 @@ try:
 except:
     pass
 
-cnx_string = 'driver={FreeTDS}; \
-                server=DESKTOP-0S4MG07\SQLEXPRESS; PORT=1433\
-                DATABASE=tjtest; \
-                UID=' +db_user+ '; PWD=' +db_psw+ ";"
-
-cnx = pyodbc.connect(cnx_string)
 
 def read_pckl_counts(pcklfile):
     pickle_in = open(pcklfile, "rb")
@@ -73,15 +66,18 @@ prod_vars_dict = read_pckl_counts(prod_vars_pkl)
 
 def read_machvars_db(count_num=count_num):
     try:
-        cnx = pyodbc.connect(cnx_string)
+        cnx = mysql.connector.connect(host="10.0.0.167",
+    user = db_user,
+    passwd = db_psw,
+    database = "tjtest")
         c = cnx.cursor()
-        c.execute("SELECT machine FROM Production_vars WHERE device = ?", count_num)
+        c.execute("SELECT mach FROM datavars WHERE counter = %s", count_num)
         mach = c.fetchone()
         mach = str(mach[0])
-        c.execute("SELECT part FROM Production_vars WHERE device = ?", count_num)
+        c.execute("SELECT part FROM datavars WHERE counter = %s", count_num)
         part = c.fetchone()
         part = str(part[0])
-        c.execute("SELECT countset FROM Production_vars WHERE device = ?", count_num)
+        c.execute("SELECT countset FROM daravars WHERE counter = %s", count_num)
         countset = c.fetchone()
         countset = int(countset[0])
         c.close()
