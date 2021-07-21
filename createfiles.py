@@ -11,7 +11,7 @@ def save_vars(dict, pkl_file):
 
 Prod_vars_dict = {"part": 0,
                   "mach": 0,
-                  "countset": 0}
+                  "countset": 100}
 
 counts_dict = {"totalcount": 0,
                "runcount": 0}
