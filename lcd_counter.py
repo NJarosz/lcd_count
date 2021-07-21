@@ -39,7 +39,8 @@ startup = True
 maint_msg = "Maintenance"
 maint_end_msg = "Maintenance End"
 invalid_msg = "Invalid Info"
-menu_msg = "Reset Counter?"
+menu_msg_top = "Reset Counter?"
+menu_msg_btm = "Bl=Yes Red=No"
 count_reset_msg = "Counter= 0"
 logoutm = "Logged Out"
 timeoutm = "Timed Out"
@@ -292,7 +293,8 @@ try:
         elif mode == modes["menu"]:
             lcd.clear()
             time.sleep(.5)
-            lcd.message(menu_msg, 1)
+            lcd.message(menu_msg_top, 1)
+            lcd.message(menu_msg_btm,2)
             while mode == modes["menu"]:
                     if button1.is_pressed:
                         button1.wait_for_release()
