@@ -155,6 +155,7 @@ def create_csv(file):
                       "User_ID", "Time", "Date")
             writer.writerow(header)
 
+
 def add_timestamp(cat, file):
     """opens or creates a csv file with todays date in
     filename. Adds timestamp to that csv including machine
@@ -165,7 +166,12 @@ def add_timestamp(cat, file):
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
 
-        
+def update_csv():
+    today = date.today()
+    file_path = create_file_path(day=today)
+    create_csv(file=file_path)
+    return today, file_path
+
 
 def display_run_info(last_display, last_disp_time):
     lcd.message(run_msg_btm, 2)
