@@ -254,9 +254,11 @@ try:
                 lcd.clear()
                 standby_info_top = f"Part:{part_num}"
                 standby_info_btm = f"Cnt:{total_count} Mch:{mach_num}"
+                print(standby_info_top)
                 lcd.message(standby_info_top, 1)
                 lcd.message(standby_info_btm, 2)
                 timer_start = datetime.now()
+                time.sleep(15)
                 if startup is True:
                     today, file_path = update_csv()
                     mode = modes["standby"]
