@@ -246,6 +246,8 @@ try:
             part_num, mach_num, countset = read_machvars_db()
             test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
             if test is True:
+                print("TRUE", part_num, mach_num, countset)
+                save_vars(prod_vars_dict, prod_vars_pkl)
                 count_dict = read_pckl_counts(count_pkl)
                 total_count = count_dict['totalcount']
                 run_count = count_dict['runcount']
@@ -262,6 +264,7 @@ try:
                     if datetime.now() >= timer_start + timedelta(seconds=7):
                         part_num, mach_num, countset = read_machvars_db()
                         test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
+                        save_vars(prod_vars_dict, prod_vars_pkl)
                         timer_start = datetime.now()
                         lcd.clear()
                         lcd.message(standby_info_top, 1)
