@@ -48,8 +48,8 @@ timeoutm = "Timed Out"
 
 try:
     db_host = "10.0.0.167"
-    db_user = "python-user"
-    db_psw = "blue.marker48"
+    db_user = os.environ.get("DB_USER_1")
+    db_psw = os.environ.get("DB_PSW_1")
     db_name = "tjtest"
 except:
     pass
