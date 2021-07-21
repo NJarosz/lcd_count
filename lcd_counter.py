@@ -208,35 +208,35 @@ def logout_func(file_path):
 
 try:    
     while True:
-        if mode == modes["setup"]:
-            change_msg("Setup")
-            while mode == modes["setup"]:
-                part_num, mach_num, countset = read_machvars_db()
-                test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
-                if test is True:
-                    count_dict = read_pckl_counts(count_pkl)
-                    total_count = count_dict['totalcount']
-                    run_count = count_dict['runcount']
-                    if startup is True:
-                        today, file_path = update_csv()
-                        mode = modes["standby"]
-                    else:
-                        time.sleep(.5)
-                        lcd.message("Press Btn", 2)
-                        keeplooping = True
-                        endlooptime = datetime.now() + timedelta(seconds=10)
-                        while keeplooping == True:
-                            if button1.is_pressed:
-                                button1.wait_for_release()
-                                mode = modes["standby"]
-                                keeplooping = False
-                            elif datetime.now() >= endlooptime:
-                                mode = modes["standby"]
-                                keeplooping = False
-
-                else:
-                    invalid_params()
-            startup = False
+        # if mode == modes["setup"]:
+        #     change_msg("Setup")
+        #     while mode == modes["setup"]:
+        #         part_num, mach_num, countset = read_machvars_db()
+        #         test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
+        #         if test is True:
+        #             count_dict = read_pckl_counts(count_pkl)
+        #             total_count = count_dict['totalcount']
+        #             run_count = count_dict['runcount']
+        #             if startup is True:
+        #                 today, file_path = update_csv()
+        #                 mode = modes["standby"]
+        #             else:
+        #                 time.sleep(.5)
+        #                 lcd.message("Press Btn", 2)
+        #                 keeplooping = True
+        #                 endlooptime = datetime.now() + timedelta(seconds=10)
+        #                 while keeplooping == True:
+        #                     if button1.is_pressed:
+        #                         button1.wait_for_release()
+        #                         mode = modes["standby"]
+        #                         keeplooping = False
+        #                     elif datetime.now() >= endlooptime:
+        #                         mode = modes["standby"]
+        #                         keeplooping = False
+        #
+        #         else:
+        #             invalid_params()
+        #     startup = False
         if mode == modes["standby"]:
             emp_name = None
             emp_num = None
@@ -253,11 +253,17 @@ try:
                 lcd.message(standby_info_top, 1)
                 lcd.message(standby_info_btm, 2)
                 timer_start = datetime.now()
+                if startup is True:
+                    today, file_path = update_csv()
+                    mode = modes["standby"]
                 while mode == modes["standby"]:
                     if datetime.now() >= timer_start + timedelta(seconds=7):
                         part_num, mach_num, countset = read_machvars_db()
                         test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
                         timer_start = datetime.now()
+                        lcd.clear()
+                        lcd.message(standby_info_top, 1)
+                        lcd.message(standby_info_btm, 2)
                     if date.today() != today:
                         today, file_path = update_csv()
                     idn, emp_num = reader.read_no_block()
@@ -276,6 +282,7 @@ try:
                         mode = modes["menu"]
             else:
                 invalid_params()
+            startup = False
         elif mode == modes["menu"]:
             lcd.clear()
             menu = 1
@@ -283,9 +290,9 @@ try:
             while mode == modes["menu"]:
                 if menu == 1:
                     lcd.message(menu_msg1)
-                    if button1.is_pressed:
-                        button1.wait_for_release()
-                        mode = modes["setup"]
+                    # if button1.is_pressed:
+                    #     button1.wait_for_release()
+                    #     mode = modes["setup"]
                     if button2.is_pressed:
                         button2.wait_for_release()
                         menu = 2
@@ -295,7 +302,6 @@ try:
                     if button1.is_pressed:
                         button1.wait_for_release()
                         total_count = 0
-                        write_count(total_count)
                         change_msg(count_reset, sec=3)
                         mode = modes["standby"]
                     if button2.is_pressed:
