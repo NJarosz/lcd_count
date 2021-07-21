@@ -318,8 +318,8 @@ try:
                 if run_count == countset:
                     sig_out.off()
                     run_count = count_reset(run_count)
-                    button1.wait_for_press()
-                    button1.wait_for_release()
+                    button2.wait_for_press()
+                    button2.wait_for_release()
                     lcd.clear()
                     lcd.message(run_msg_top2, 1)
                     sig_out.on()
