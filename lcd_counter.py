@@ -140,7 +140,7 @@ def count_reset(runcount):
     count_dict['runcount'] = runcount
     save_vars(count_dict, count_pkl)
     lcd.clear()
-    lcd.message("PRESS BUTTON 2",1)
+    lcd.message("PRESS BLK BTN",1)
     lcd.message("TO RESET", 2)
     return runcount
                 
@@ -211,35 +211,6 @@ def logout_func(file_path):
 
 try:    
     while True:
-        # if mode == modes["setup"]:
-        #     change_msg("Setup")
-        #     while mode == modes["setup"]:
-        #         part_num, mach_num, countset = read_machvars_db()
-        #         test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
-        #         if test is True:
-        #             count_dict = read_pckl_counts(count_pkl)
-        #             total_count = count_dict['totalcount']
-        #             run_count = count_dict['runcount']
-        #             if startup is True:
-        #                 today, file_path = update_csv()
-        #                 mode = modes["standby"]
-        #             else:
-        #                 time.sleep(.5)
-        #                 lcd.message("Press Btn", 2)
-        #                 keeplooping = True
-        #                 endlooptime = datetime.now() + timedelta(seconds=10)
-        #                 while keeplooping == True:
-        #                     if button1.is_pressed:
-        #                         button1.wait_for_release()
-        #                         mode = modes["standby"]
-        #                         keeplooping = False
-        #                     elif datetime.now() >= endlooptime:
-        #                         mode = modes["standby"]
-        #                         keeplooping = False
-        #
-        #         else:
-        #             invalid_params()
-        #     startup = False
         if mode == modes["standby"]:
             emp_name = None
             emp_num = None
@@ -308,8 +279,8 @@ try:
                         lcd.clear()
         elif mode == modes["run"]:
             sig_out.on()
-            run_msg_top1 = f"{part_num}  {mach_num}"
-            run_msg_top2 = f"{emp_num} {emp_name}"
+            run_msg_top1 = f"Part: {part_num} "
+            run_msg_top2 = f"Emp: {emp_name}"
             last_display = 0
             last_disp_time = datetime.now()
             now = datetime.now()
