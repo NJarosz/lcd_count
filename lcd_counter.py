@@ -47,8 +47,8 @@ timeoutm = "Timed Out"
 
 
 try:
-    db_user = "piuser"
-    db_psw = "pi"
+    db_user = "python-user"
+    db_psw = "blue.marker48"
 except:
     pass
 
@@ -197,7 +197,7 @@ try:
             change_msg("Setup")
             while mode == modes["setup"]:
                 part_num, mach_num, countset = read_machvars_db()
-                test, prod_vars_dict = evaluate(part_num, mach_num, countset)
+                test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
                 if test is True:
                     count_dict = read_pckl_counts(count_pkl)
                     total_count = count_dict['totalcount']

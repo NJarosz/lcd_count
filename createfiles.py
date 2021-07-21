@@ -18,3 +18,6 @@ counts_dict = {"totalcount": 0,
 
 vars_file = "/home/pi/Documents/vars.pickle"
 count_file = "/home/pi/Documents/counts.pickle"
+
+save_vars(Prod_vars_dict, vars_file)
+save_vars(counts_dict, count_file)
