@@ -18,6 +18,8 @@ sig_out = OutputDevice(17)
 reader = SimpleMFRC522()
 lcd = I2C_LCD_driver.lcd()
 csv_path = "/home/pi/Documents/CSV/"
+count_pkl = "/home/pi/Documents/counts.pickle"
+prod_vars_pkl = "/home/pi/Documents/vars.pickle"
 file_path = ""
 logon = "LOG_ON"
 logout = "LOG_OFF"
@@ -33,7 +35,6 @@ modes = {"setup": 0,
          }
 mode = modes["setup"]
 startup = True
-count_path = "/home/pi/Documents/totalcount"
 maint_msg = "Maintenance"
 maint_end_msg = "Maintenance End"
 invalid_msg = "Invalid Info"
@@ -42,41 +43,58 @@ menu_msg2 = "Reset Counter"
 count_reset = "Counter= 0"
 logoutm = "Logged Out"
 timeoutm = "Timed Out"
-db_host = '10.0.0.167'
-db_name = 'tjtest'
+
+
 try:
-    db_user = os.environ.get('DB_USER_1')
-    db_psw = os.environ.get('DB_PSW_1')
+    db_user = piuser
+    db_psw =
 except:
     pass
 
-def read_machvars_db():
-    conn = mysql.connector.connect(
-                                host=db_host,
-                                user=db_user,
-                                passwd=db_psw,
-                                database=db_name
-                            )
-    c = conn.cursor()
-    c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
-    mach = c.fetchone()
-    mach = int(mach[0])
-    c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
-    part = c.fetchone()
-    part = str(part[0])
-    c.close()
-    return part, mach
+cnx_string = 'driver={ODBC Driver 17 for SQL Server}; \
+                server=DESKTOP-0S4MG07\SQLEXPRESS; PORT=1433\
+                DATABASE=tjtest; \
+                UID=' +db_user+ '; PWD=' +db_psw+ ";"
+
+cnx = pyodbc.connect(cnx_string)
+
+def read_pckl_counts(pcklfile):
+    pickle_in = open(pcklfile, "rb")
+    pkl_dict = pickle.load(pickle_in)
+    return pkl_dict
+
+def save_vars(dict, pkl_file):
+    with open(pkl_file, "wb") as pckl:
+        pickle.dump(dict, pckl)
+
+prod_vars_dict = read_pckl_counts(prod_vars_pkl)
+
+def read_machvars_db(count_num=count_num):
+    try:
+        cnx = pyodbc.connect(cnx_string)
+        c = cnx.cursor()
+        c.execute("SELECT machine FROM Production_vars WHERE device = ?", count_num)
+        mach = c.fetchone()
+        mach = str(mach[0])
+        c.execute("SELECT part FROM Production_vars WHERE device = ?", count_num)
+        part = c.fetchone()
+        part = str(part[0])
+        c.execute("SELECT countset FROM Production_vars WHERE device = ?", count_num)
+        countset = c.fetchone()
+        countset = int(countset[0])
+        c.close()
+    except:
+        part = str(prod_vars_dict['part'])
+        mach = str(prod_vars_dict['mach'])
+        countset = int(prod_vars_dict['countset'])
+
+    return part, mach, countset
     
 def ret_emp_name(id_num):
     try:
-        conn = mysql.connector.connect(
-                                host=db_host,
-                                user=db_user,
-                                passwd=db_psw,
-                                database=db_name
-                            )
-        c = conn.cursor()
-        c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
+        cnx = pyodbc.connect(cnx_string)
+        c = cnx.cursor()
+        c.execute("SELECT name FROM employees WHERE id=?", (id_num))
         emp_name=c.fetchone()
         emp_name=str(emp_name[0])
         c.close()
@@ -85,31 +103,36 @@ def ret_emp_name(id_num):
         return None
               
 
-def evaluate(part, mach):
+def evaluate(part, mach, countset, dicti):
     b = False
     try:
         if part and len(part) != 0:
-            if type(mach) == int:
-                b = True
+            if mach and len(mach) != 0:
+                if type(countset) == int:
+                    b = True
+                    dicti['part'] = part
+                    dicti['mach'] = mach
+                    dicti['countset'] = countset
     except:
         b = False
-    return b
+    return b, dicti
 
-def read_count(file=count_path):
-    with open(file, "r", newline="") as f:
-        total_count = f.readline()
-        if len(str(total_count)) == 0:
-            total_count = 0
-        else:
-            total_count = int(total_count)
-    return total_count
+def update_counts(totalcount, runcount):
+    global count_dict
+    totalcount +=1
+    runcount +=1
+    count_dict['totalcount'] = totalcount
+    count_dict['runcount'] = runcount
+    return totalcount, runcount
 
-
-def write_count(count, file=count_path):
-    if count > 999999:
-        count = 0
-    with open(file, "w") as f:
-        f.write(str(count))
+def count_reset(runcount):
+    global count_dict
+    runcount = 0
+    count_dict['runcount'] = runcount
+    lcd.clear()
+    lcd.message("PRESS BUTTON 1",1)
+    lcd.message("TO RESET", 2)
+    return runcount
                 
 
 def invalid_params():
@@ -144,8 +167,6 @@ def add_timestamp(cat, file):
         writer = csv.writer(fa, delimiter=",")
         writer.writerow(data)
 
-
-
         
 
 def display_run_info(last_display, last_disp_time):
@@ -177,10 +198,12 @@ try:
         if mode == modes["setup"]:
             change_msg("Setup")
             while mode == modes["setup"]:
-                part_num, mach_num = read_machvars_db()
-                test = evaluate(part_num, mach_num)
+                part_num, mach_num, countset = read_machvars_db()
+                test, prod_vars_dict = evaluate(part_num, mach_num, countset)
                 if test is True:
-                    total_count = read_count()
+                    count_dict = read_pckl_counts(count_pkl)
+                    total_count = count_dict['totalcount']
+                    run_count = count_dict['runcount']
                     if startup is True:
                         today, file_path = update_csv()
                         mode = modes["standby"]
@@ -266,11 +289,18 @@ try:
             while mode == modes["run"]:
                 run_msg_btm = f"Cnt:{emp_count}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
-                if shot_sig.is_pressed:
-                    shot_sig.wait_for_release()
-                    emp_count +=1
-                    total_count +=1
-                    write_count(count=total_count)
+                if run_count == countset:
+                    sig_out.off()
+                    run_count = count_reset()
+                    button1.wait_for_press()
+                    button1.wait_for_release()
+                    lcd.clear()
+                    lcd.message(run_msg_top2, 1)
+                    sig_out.on()
+                elif shot_sig.is_pressed:
+                    emp_count += 1
+                    total_count, run_count = update_counts(total_count, run_count)
+                    save_vars(count_dict, count_pkl)
                     add_timestamp(shot, file_path)
                     now = datetime.now()
                     time.sleep(0.1)
@@ -278,7 +308,7 @@ try:
                     add_timestamp(timeout, file_path)
                     sig_out.off()
                     change_msg(timeoutm, sec=5)
-                    mode = modes["standby"]                   
+                    mode = modes["standby"]
                 if button1.is_pressed:
                     button1.wait_for_release()
                     logout_func(file_path)
