@@ -75,12 +75,14 @@ def read_machvars_db(count_num=count_num):
             database=db_name
         )
         c = conn.cursor()
-        c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
-        mach = c.fetchone()
-        mach = str(mach[0])
         c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
         part = c.fetchone()
         part = str(part[0])
+
+        c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
+        mach = c.fetchone()
+        mach = str(mach[0])
+
         c.execute("SELECT countset FROM datavars WHERE counter = %s", (count_num,))
         countset = c.fetchone()
         countset = int(countset[0])
