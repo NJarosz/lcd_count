@@ -81,7 +81,7 @@ def read_machvars_db(count_num=count_num):
         c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
         part = c.fetchone()
         part = str(part[0])
-        c.execute("SELECT countset FROM daravars WHERE counter = %s", (count_num,))
+        c.execute("SELECT countset FROM datavars WHERE counter = %s", (count_num,))
         countset = c.fetchone()
         countset = int(countset[0])
         c.close()
@@ -101,7 +101,7 @@ def ret_emp_name(id_num):
             database=db_name
         )
         c = conn.cursor()
-        c.execute("SELECT name FROM employees WHERE id=?", (id_num))
+        c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
         emp_name=c.fetchone()
         emp_name=str(emp_name[0])
         c.close()
