@@ -309,6 +309,7 @@ try:
                     lcd.message(run_msg_top2, 1)
                     sig_out.on()
                 elif shot_sig.is_pressed:
+                    shot_sig.wait_for_release()
                     emp_count += 1
                     total_count, run_count = update_counts(total_count, run_count)
                     save_vars(count_dict, count_pkl)
