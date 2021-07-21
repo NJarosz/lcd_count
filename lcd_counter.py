@@ -266,6 +266,8 @@ try:
                         test, prod_vars_dict = evaluate(part_num, mach_num, countset, prod_vars_dict)
                         save_vars(prod_vars_dict, prod_vars_pkl)
                         timer_start = datetime.now()
+                        standby_info_top = f"Part:{part_num}"
+                        standby_info_btm = f"Cnt:{total_count} Mch:{mach_num}"
                         lcd.clear()
                         lcd.message(standby_info_top, 1)
                         lcd.message(standby_info_btm, 2)
