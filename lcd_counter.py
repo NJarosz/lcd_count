@@ -289,7 +289,9 @@ try:
             while mode == modes["run"]:
                 run_msg_btm = f"Cnt:{emp_count}, {total_count}"
                 last_display, last_disp_time = display_run_info(last_display, last_disp_time)
-                if run_count == countset:
+                if countset == 0:
+                    pass
+                elif run_count == countset:
                     sig_out.off()
                     run_count = count_reset(run_count)
                     button2.wait_for_press()
@@ -297,7 +299,7 @@ try:
                     lcd.clear()
                     lcd.message(run_msg_top2, 1)
                     sig_out.on()
-                elif shot_sig.is_pressed:
+                if shot_sig.is_pressed:
                     shot_sig.wait_for_release()
                     emp_count += 1
                     total_count, run_count = update_counts(total_count, run_count)
@@ -305,7 +307,7 @@ try:
                     add_timestamp(shot, file_path)
                     now = datetime.now()
                     time.sleep(0.1)
-                elif datetime.now() >= now + timedelta(seconds=300):
+                if datetime.now() >= now + timedelta(seconds=300):
                     add_timestamp(timeout, file_path)
                     sig_out.off()
                     change_msg(timeoutm, sec=5)
