@@ -47,7 +47,7 @@ timeoutm = "Timed Out"
 
 
 try:
-    db_host = os.enbiron.get("DB_HOST_1")
+    db_host = os.environ.get("DB_HOST_1")
     db_user = os.environ.get("DB_USER_1")
     db_psw = os.environ.get("DB_PSW_1")
     db_name = "device_vars"
