@@ -47,10 +47,10 @@ timeoutm = "Timed Out"
 
 
 try:
-    db_host = "10.0.0.167"
+    db_host = os.enbiron.get("DB_HOST_1")
     db_user = os.environ.get("DB_USER_1")
     db_psw = os.environ.get("DB_PSW_1")
-    db_name = "tjtest"
+    db_name = "device_vars"
 except:
     pass
 
@@ -75,15 +75,15 @@ def read_machvars_db(count_num=count_num):
             database=db_name
         )
         c = conn.cursor()
-        c.execute("SELECT part FROM datavars WHERE counter=%s", (count_num,))
+        c.execute("SELECT part FROM data_vars WHERE device_id=%s", (count_num,))
         part = c.fetchone()
         part = str(part[0])
 
-        c.execute("SELECT mach FROM datavars WHERE counter=%s", (count_num,))
+        c.execute("SELECT machine FROM data_vars WHERE device_id=%s", (count_num,))
         mach = c.fetchone()
         mach = str(mach[0])
 
-        c.execute("SELECT countset FROM datavars WHERE counter = %s", (count_num,))
+        c.execute("SELECT count_goal FROM data_vars WHERE device_id = %s", (count_num,))
         countset = c.fetchone()
         countset = int(countset[0])
         c.close()
@@ -103,7 +103,7 @@ def ret_emp_name(id_num):
             database=db_name
         )
         c = conn.cursor()
-        c.execute("SELECT name FROM employees WHERE id=%s", (id_num,))
+        c.execute("SELECT name FROM employees WHERE emp_id=%s", (id_num,))
         emp_name=c.fetchone()
         emp_name=str(emp_name[0])
         c.close()
