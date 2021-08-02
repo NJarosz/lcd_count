@@ -44,13 +44,14 @@ menu_msg_btm = "Bl=Yes Red=No"
 count_reset_msg = "Counter= 0"
 logoutm = "Logged Out"
 timeoutm = "Timed Out"
+db_name = "device_vars"
 
 
 try:
     db_host = os.environ.get("DB_HOST_1")
     db_user = os.environ.get("DB_USER_1")
     db_psw = os.environ.get("DB_PSW_1")
-    db_name = "device_vars"
+    print(db_host, db_user, db_psw)
 except:
     pass
 
@@ -75,6 +76,7 @@ def read_machvars_db(count_num=count_num):
             database=db_name
         )
         c = conn.cursor()
+        print("connected")
         c.execute("SELECT part FROM data_vars WHERE device_id=%s", (count_num,))
         part = c.fetchone()
         part = str(part[0])
