@@ -282,7 +282,10 @@ try:
         elif mode == modes["run"]:
             sig_out.on()
             run_msg_top1 = f"Part: {part_num} "
-            run_msg_top2 = f"Emp: {emp_name}"
+            if emp_name != None:
+                run_msg_top2 = f"Emp: {emp_name}"
+            else:
+                run_msg_top2 = f"Emp: {emp_num}"
             last_display = 0
             last_disp_time = datetime.now()
             now = datetime.now()
