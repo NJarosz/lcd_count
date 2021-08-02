@@ -268,13 +268,14 @@ try:
             lcd.message(menu_msg_btm,2)
             while mode == modes["menu"]:
                     if button2.is_pressed:
-                        button1.wait_for_release()
+                        button2.wait_for_release()
                         count_dict["totalcount"] = 0
                         count_dict["runcount"] = 0
                         save_vars(count_dict, count_pkl)
                         change_msg(count_reset_msg, sec=3)
                         mode = modes["standby"]
                     if button1.is_pressed:
+                        button1.wait_for_release()
                         mode = modes["standby"]
                         lcd.clear()
         elif mode == modes["run"]:
