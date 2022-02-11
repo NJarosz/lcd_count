@@ -67,6 +67,7 @@ def save_vars(dict, pkl_file):
 prod_vars_dict = read_pckl_counts(prod_vars_pkl)
 
 def read_machvars_db(count_num=count_num):
+    # Attempts to pull current production variables from DB, or else from Pickle Files
     try:
         conn = mysql.connector.connect(
             host=db_host,
@@ -88,9 +89,14 @@ def read_machvars_db(count_num=count_num):
         countset = int(countset[0])
         c.close()
     except:
-        part = str(prod_vars_dict['part'])
-        mach = str(prod_vars_dict['mach'])
-        countset = int(prod_vars_dict['countset'])
+        try:
+            part = str(prod_vars_dict['part'])
+            mach = str(prod_vars_dict['mach'])
+            countset = int(prod_vars_dict['countset'])
+        except:
+            part = 9999
+            mach = 99
+            countset = 0
 
     return part, mach, countset
     
